@@ -26,12 +26,15 @@ for (const file of files) {
   const embedding = await embed(imagePath)
 
   /* Store the title, image, and embedding in Redis */
-  const kebabTitle = title.replace(/'/g, '').replace(/ /g, '-').toLowerCase()
+  const kebabTitle = title
+    .replace(/ /g, '-')
+    .replace(/[^a-zA-Z0-9-]/g, '')
+    .toLowerCase()
   const key = `${prefix}:${kebabTitle}`
   await redis.hSet(key, { title, image, embedding })
 
   /* Log that the image was added */
-  console.log('Added', chalk.greenBright(file), 'to Redis')
+  console.log('Added', chalk.greenBright(file))
 }
 
 console.log('All images embedded and added to Redis.')
