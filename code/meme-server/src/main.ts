@@ -1,13 +1,16 @@
 import cors from 'cors'
 import express, { Express } from 'express'
 
-import { findMatch } from './matcher.js'
+import { findMatch, fetchImage } from './matcher.js'
 
 /* Create the Express app */
 const app: Express = express()
 
-/* Use JSON */
+/* Set up JSON */
 app.use(express.json())
+
+/* Set up raw image data */
+app.use(express.raw({ type: 'image/png', limit: '10mb' }))
 
 /* Enable CORS */
 app.use(cors())
@@ -23,12 +26,21 @@ app.get('/', (_req, res) => {
 })
 
 /* Search for matching memes */
-app.get('/match', async (req, res) => {
-  // get the image from the request body
-  const image = req.body.image
+app.post('/match', async (req, res) => {
+  const imageBuffer = req.body as Buffer
+  const match = await findMatch(imageBuffer)
+  res.json(match)
+})
 
-  const searchResult = await findMatch(image)
-  res.json(searchResult)
+/* Fetch image by key */
+app.get('/image/:key', async (req, res) => {
+  const key = req.params.key
+  const image = await fetchImage(key)
+  if (image === null) {
+    res.status(404).send()
+  } else {
+    res.type('image/png').send(image)
+  }
 })
 
 /* Start the server */
