@@ -1,6 +1,6 @@
 import 'dotenv/config'
 
-import { createClient, ErrorReply, SchemaFieldTypes, VectorAlgorithms } from 'redis'
+import { createClient } from 'redis'
 
 const redisHost = process.env.REDIS_HOST || 'localhost'
 const redisPort = process.env.REDIS_PORT || 6379
