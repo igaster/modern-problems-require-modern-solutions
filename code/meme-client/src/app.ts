@@ -26,6 +26,7 @@ type Match = {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
+  hideAll()
   await initialize()
   showVideo()
 })
@@ -127,22 +128,35 @@ async function usePhoto(): Promise<void> {
   })
 }
 
+function hideAll(): void {
+  hideElements(videoDisplay, photoDisplay, matchDisplay)
+}
+
 function showVideo(): void {
-  photoDisplay.classList.add('hidden')
-  matchDisplay.classList.add('hidden')
-  videoDisplay.classList.remove('hidden')
+  hideElements(photoDisplay, matchDisplay)
+  showElement(videoDisplay)
 }
 
 function showPhoto(): void {
-  videoDisplay.classList.add('hidden')
-  matchDisplay.classList.add('hidden')
-  photoDisplay.classList.remove('hidden')
+  hideElements(videoDisplay, matchDisplay)
+  showElement(photoDisplay)
 }
 
 function showMatch(): void {
-  videoDisplay.classList.add('hidden')
-  photoDisplay.classList.add('hidden')
-  matchDisplay.classList.remove('hidden')
+  hideElements(videoDisplay, photoDisplay)
+  showElement(matchDisplay)
+}
+
+function hideElements(...elements: HTMLElement[]): void {
+  for (const element of elements) {
+    element.classList.add('hidden')
+    element.classList.remove('flex')
+  }
+}
+
+function showElement(element: HTMLElement): void {
+  element.classList.add('flex')
+  element.classList.remove('hidden')
 }
 
 export {}
