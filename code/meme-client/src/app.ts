@@ -1,3 +1,7 @@
+// @ts-ignore: Don't have time to play TypeScript Sudoku for something that should just work
+const memeServerPort = import.meta.env.VITE_MEME_SERVER_PORT || 8080
+const memeServerUrl = `http://localhost:${memeServerPort}`
+
 const video = document.getElementById('video') as HTMLVideoElement
 const canvas = document.getElementById('photo-canvas') as HTMLCanvasElement
 const photo = document.getElementById('photo') as HTMLImageElement
@@ -68,7 +72,7 @@ async function initialize() {
 }
 
 async function setCamera(deviceId: string): Promise<void> {
-  const constraints = { video: { deviceId: { exact: deviceId } } }
+  const constraints = { video: { deviceId: { exact: deviceId }, width: 1280, height: 720 } }
   const mediaStream = await navigator.mediaDevices.getUserMedia(constraints)
   video.srcObject = mediaStream
 }
@@ -104,14 +108,14 @@ async function usePhoto(): Promise<void> {
         },
         body: blob
       }
-      const response = await fetch('http://localhost:8080/match', options)
+      const response = await fetch(`${memeServerUrl}/match`, options)
       const match = (await response.json()) as Match
 
       console.log(match)
 
       /* Set the title and matched- and user-photos */
       matchTitle.textContent = match.title
-      matchedPhoto.src = `http://localhost:8080/image/${match.id}`
+      matchedPhoto.src = `${memeServerUrl}/image/${match.id}`
       userPhoto.src = photo.src
 
       /* Display the match elements */

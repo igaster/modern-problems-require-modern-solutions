@@ -1,8 +1,13 @@
+import 'dotenv/config'
+
 import { createClient, ErrorReply, SchemaFieldTypes, VectorAlgorithms } from 'redis'
+
+const redisHost = process.env.REDIS_HOST || 'localhost'
+const redisPort = process.env.REDIS_PORT || 6379
 
 const prefix = 'meme:twin'
 const indexName = `${prefix}:index`
-const redisURL = 'redis://localhost:6379'
+const redisURL = `redis://${redisHost}:${redisPort}`
 
 /* Create and connect the Redis client */
 const redis = await createClient({ url: redisURL })
