@@ -3,6 +3,7 @@ const canvas = document.getElementById('photo-canvas') as HTMLCanvasElement
 const photo = document.getElementById('photo') as HTMLImageElement
 
 const videoDisplay = document.getElementById('video-display') as HTMLDivElement
+const cameraSelect = document.getElementById('camera-select') as HTMLSelectElement
 const takePhotoButton = document.getElementById('take-photo') as HTMLButtonElement
 
 const photoDisplay = document.getElementById('photo-display') as HTMLDivElement
@@ -20,11 +21,14 @@ type Match = {
   title: string
 }
 
-const devices = await navigator.mediaDevices.enumerateDevices()
-console.log(devices)
+document.addEventListener('DOMContentLoaded', async () => {
+  await initialize()
+  showVideo()
+})
 
-const mediaStream = await navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720 } })
-video.srcObject = mediaStream
+cameraSelect.addEventListener('change', async () => {
+  await setCamera(cameraSelect.value)
+})
 
 takePhotoButton.addEventListener('click', () => {
   takePhoto()
@@ -39,22 +43,34 @@ usePhotoButton.addEventListener('click', async () => {
 retakePhotoButton.addEventListener('click', showVideo)
 restartButton.addEventListener('click', showVideo)
 
-function showVideo(): void {
-  photoDisplay.classList.add('hidden')
-  matchDisplay.classList.add('hidden')
-  videoDisplay.classList.remove('hidden')
+async function initialize() {
+  /* Get the available video devices */
+  const devices = await navigator.mediaDevices.enumerateDevices()
+  const videoDevices = devices.filter(device => device.kind === 'videoinput')
+
+  /* If there are no video devices, show an error */
+  if (videoDevices.length === 0) {
+    window.alert('No video devices found')
+    return
+  }
+
+  /* Populate the camera select */
+  videoDevices.forEach(device => {
+    const option = document.createElement('option')
+    option.value = device.deviceId
+    option.text = device.label
+    cameraSelect.appendChild(option)
+  })
+
+  /* Set the camera to the first device */
+  const device = videoDevices[0] as MediaDeviceInfo
+  await setCamera(device.deviceId)
 }
 
-function showPhoto(): void {
-  videoDisplay.classList.add('hidden')
-  matchDisplay.classList.add('hidden')
-  photoDisplay.classList.remove('hidden')
-}
-
-function showMatch(): void {
-  videoDisplay.classList.add('hidden')
-  photoDisplay.classList.add('hidden')
-  matchDisplay.classList.remove('hidden')
+async function setCamera(deviceId: string): Promise<void> {
+  const constraints = { video: { deviceId: { exact: deviceId } } }
+  const mediaStream = await navigator.mediaDevices.getUserMedia(constraints)
+  video.srcObject = mediaStream
 }
 
 function takePhoto(): void {
@@ -105,6 +121,24 @@ async function usePhoto(): Promise<void> {
       resolve()
     })
   })
+}
+
+function showVideo(): void {
+  photoDisplay.classList.add('hidden')
+  matchDisplay.classList.add('hidden')
+  videoDisplay.classList.remove('hidden')
+}
+
+function showPhoto(): void {
+  videoDisplay.classList.add('hidden')
+  matchDisplay.classList.add('hidden')
+  photoDisplay.classList.remove('hidden')
+}
+
+function showMatch(): void {
+  videoDisplay.classList.add('hidden')
+  photoDisplay.classList.add('hidden')
+  matchDisplay.classList.remove('hidden')
 }
 
 export {}
