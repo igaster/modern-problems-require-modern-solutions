@@ -2,7 +2,7 @@ import { commandOptions, SearchOptions } from 'redis'
 import fs from 'fs/promises'
 
 import { embed } from './embedder.js'
-import { indexName, redis, prefix } from './redis-client.js'
+import { aliasIndexName, redis, prefix, DistanceMetric, indexName } from './redis-client.js'
 
 type Match = {
   id: string
@@ -34,7 +34,7 @@ async function findMatch(imageData: Buffer): Promise<Match> {
     RETURN: ['title', '__embedding_score']
   }
 
-  const results = await redis.ft.search(indexName, redisQuery, options)
+  const results = await redis.ft.search(aliasIndexName, redisQuery, options)
   const document = results.documents[0] as any
 
   /* Extract the data from the document */
@@ -50,4 +50,9 @@ async function fetchImage(id: string): Promise<Buffer | null> {
   return image ?? null
 }
 
-export { findMatch, fetchImage }
+async function aliasIndex(distanceMetric: DistanceMetric) {
+  const thisIndexName = indexName(distanceMetric)
+  await redis.ft.aliasUpdate(aliasIndexName, thisIndexName)
+}
+
+export { aliasIndex, findMatch, fetchImage }

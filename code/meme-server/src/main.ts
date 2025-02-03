@@ -1,7 +1,7 @@
 import cors from 'cors'
 import express, { Express } from 'express'
 
-import { findMatch, fetchImage } from './matcher.js'
+import { aliasIndex, findMatch, fetchImage } from './matcher.js'
 
 /* Create the Express app */
 const app: Express = express()
@@ -22,7 +22,7 @@ app.use(function (_req, res, next) {
 
 /* Home route with a status message */
 app.get('/', (_req, res) => {
-  res.json({ staus: 'OK' })
+  res.json({ status: 'OK' })
 })
 
 /* Search for matching memes */
@@ -41,6 +41,24 @@ app.get('/image/:key', async (req, res) => {
   } else {
     res.type('image/png').send(image)
   }
+})
+
+/* Change the distance metric to cosine for vector search */
+app.get('/metric/cosine', async (_req, res) => {
+  await aliasIndex('COSINE')
+  res.json({ status: 'OK', message: 'Distance metric set to cosine' })
+})
+
+/* Change the distance metric to inner product for vector search */
+app.get('/metric/ip', async (_req, res) => {
+  await aliasIndex('IP')
+  res.json({ status: 'OK', message: 'Distance metric set to inner product' })
+})
+
+/* Change the distance metric to Euclidean for vector search */
+app.get('/metric/l2', async (_req, res) => {
+  await aliasIndex('L2')
+  res.json({ status: 'OK', message: 'Distance metric set to Euclidean' })
 })
 
 /* Start the server */

@@ -20,6 +20,10 @@ const userPhoto = document.getElementById('user-photo') as HTMLImageElement
 const matchedPhoto = document.getElementById('matched-photo') as HTMLImageElement
 const restartButton = document.getElementById('restart') as HTMLButtonElement
 
+const cosineButton = document.getElementById('cosine') as HTMLButtonElement
+const ipButton = document.getElementById('innerProduct') as HTMLButtonElement
+const l2Button = document.getElementById('euclidean') as HTMLButtonElement
+
 type Match = {
   id: string
   title: string
@@ -47,6 +51,10 @@ usePhotoButton.addEventListener('click', async () => {
 
 retakePhotoButton.addEventListener('click', showVideo)
 restartButton.addEventListener('click', showVideo)
+
+cosineButton.addEventListener('click', useCosineMetric)
+ipButton.addEventListener('click', useInnerProductMetric)
+l2Button.addEventListener('click', useEuclideanMetric)
 
 async function initialize() {
   /* Get the available video devices */
@@ -126,6 +134,18 @@ async function usePhoto(): Promise<void> {
       resolve()
     })
   })
+}
+
+function useCosineMetric(): void {
+  fetch(`${memeServerUrl}/metric/cosine`)
+}
+
+function useInnerProductMetric(): void {
+  fetch(`${memeServerUrl}/metric/ip`)
+}
+
+function useEuclideanMetric(): void {
+  fetch(`${memeServerUrl}/metric/l2`)
 }
 
 function hideAll(): void {
